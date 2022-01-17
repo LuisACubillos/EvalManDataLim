@@ -1,0 +1,204 @@
+---
+title: "Lab 1 Guía Práctica Modelos Basados en Captura"
+author: "Luis A. Cubillos"
+date: "17 Enero 2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Objetivos
+
+### General
+
+Aplicar algunos métodos de evaluación con datos limitados analizar el estatus y reconocer limitaciones.
+
+### Específicos
+
+1. Evaluación del estatus aplicando un método basado sólo en capturas.
+
+## Tópicos
+
+1. Series de tiempo de capturas.
+2. Clasificación de estatus en base a $C_max$.
+3. Métodos basados sólo en captura (Only-catch).
+
+## Datos
+
+1. Capturas anuales de reineta en Chile, periodo 1994-2020.
+
+2. Capturas anuales de jibia, _Dosidicus gigas_, en el Pacífico Suroriental (Area 87). Datos recopilados de distintas fuentes por Payá (2018).
+
+## Métodos
+
+1. CMSY2 (Froese et al., 2017)
+
+2. OCOM (Zhou et al., 2017a)
+
+3. zBRT (Zhou et al., 2017b)
+
+### Instalación de packages
+
+```{r eval=FALSE}
+devtools::install_github("cfree14/datalimited2")
+```
+
+## Métodos basados en datos de captura
+
+Los modelos que se utilizarán son tres de los más comunes, y consisten en estimaciones de estatus según el modelo de excedentes de producción logístico para el modelo de biomasa dinámica dada por:
+
+$$B_{t+1}=B_t + rB_t(1-B_t/k)-C_t$$
+
+donde $B_t$ es la biomasa del stock en el año $t$, $r$ es la tasa intrinseca de crecimiento poblacional (i.e., $r_{max}$), $k$ es la capacidad de carga (no confundir con el coeficiente de crecimiento corporal de von Bertalanffy), en tanto que $C_t$ es la captura en el año $t$.
+
+El marco biológico para la explotación por defecto, viene dado por los siguientes puntos biológicos de referencia:
+
+Biomasa inexplotada: $B_0 = k$
+
+Biomasa objetivo: $B_{RMS}=k/2$
+
+Biomasa límite: $B_{lim}=k/4$
+
+Rendimiento máximo sostenido: $RMS=rK/4$
+
+Mortalidad por pesca objetivo: $F_{RMS}=r/2$
+
+### Datos de captura
+
+Los datos de captura de reineta consisten en una serie de tiempo que cubre 27 años, desde 1994 a 2020, i.e.,
+
+```{r}
+reineta <- structure(list(
+  yr = 1994:2020,
+  ct = c(1186, 3930, 5585, 5998, 6332, 6828, 8159, 15156, 4429, 2645, 3764, 12707, 2517, 3743, 6160, 15199, 16977, 28814, 23079, 11955, 35975, 34218, 27586, 25267, 28175, 44288, 38109)),
+  .Names = c("yr", "ct"),
+  class = "data.frame",
+  row.names = 1:27)
+```
+
+Un gráfico de las capturas clásico se puede representar por:
+
+```{r}
+library(datalimited2)
+yt <- reineta$ct
+captura_reineta <- ts(yt,start = 1994,frequency = 1)
+plot(captura_reineta,ty="b",pch=19,ylim=c(0,max(reineta$ct)*1.2),las=1,ylab="Captura (toneledas)",xlab="Años")
+```
+
+#### Modelos
+
+__OCm1__: CMSY2
+
+__OCm2__: OCOM
+
+__OCm3__: zBRT
+
+#### Estimación
+
+El modelo CMSY2 corresponde al método propuesto por Froese et al. (2017) en base a indicadores de resiliencia que pueden ser consultados en FISHBASE, mediante la función ``resilience(species="Brama australis")``. Sin embargo, la resiliencia no está disponible para esta especie y se asume que puede ser alta. Luego, la estimación es:
+
+```{r}
+catch = reineta$ct
+yr = reineta$yr
+m1 = cmsy2(year=yr, catch=catch, resilience="High")
+```
+
+El diagnóstico del ajuste se obtiene mediante la función:
+
+```{r}
+plot_dlm(m1)
+```
+
+La estimación de la biomasa con límites de confianza se obtiene de la siguiente manera:
+
+```{r}
+m1.Bt = m1$ref_ts$b
+m1.Bt_l = m1$ref_ts$b_lo   
+m1.Bt_h = m1$ref_ts$b_hi
+plot(yr, m1.Bt, type="b", bty="n", pch=19,xlab="",ylab="Biomasa",ylim=c(0,max(m1.Bt_h)))
+lines(yr, m1.Bt_l, lty=2)
+lines(yr, m1.Bt_h, lty=2)
+```
+
+Para extraer los puntos biológicos de referencia, se utilza la siguiente función:
+
+```{r}
+CMSY1_ref_pts = m1[["ref_pts"]]
+knitr::kable(CMSY1_ref_pts)
+```
+
+El método OCOM fue propuesto por Zhou et al. (2017a), y en su estimación se utiliza la siguiente función:
+
+```{r}
+m2 = ocom(year = yr, catch = catch, m = 0.35)
+```
+
+El diagnóstico del ajuste se obtiene mediante la función:
+
+```{r}
+plot_dlm(m2)
+```
+
+De igual manera, la trayectoria de la biomasa estimada es:
+
+```{r}
+m2.Bt = m2$ref_ts$b
+m2.Bt_l = m2$ref_ts$b_lo   
+m2.Bt_h = m2$ref_ts$b_hi
+plot(yr, m2.Bt, type="b", bty="n", pch=19,xlab="",ylab="Biomasa",ylim=c(0,max(m2.Bt_h)))
+lines(yr, m2.Bt_l, lty=2)
+lines(yr, m2.Bt_h, lty=2)
+```
+
+Los puntos biológicos de referencia, se obtiene por:
+
+```{r}
+CMSY2_ref_pts = m2[["ref_pts"]]
+knitr::kable(CMSY2_ref_pts)
+```
+
+
+Con propósitos comparativos, se puede aplicar el método BTR de Zhou et al. (2017b), a saber:
+
+```{r}
+m3 <- zbrt(year=yr, catch=catch)
+```
+
+**Nota**: el método zBRT de Zhou estima la saturación ($S$), esto es $B/k$; i.e.,
+
+$$S = B/k = 0.5B/B_{RMS}$$
+
+A partir de la serie de tiempo de captura se obtiene la saturación $B/k$, i.e.
+
+```{r}
+plot_dlm(m3)
+```
+
+Para extraer las series de tiempo:
+
+```{r}
+ts <- m3[["ts"]]
+knitr::kable(ts)
+```
+
+
+## Ejercicios
+
+### Ejercicio 1
+
+1. Aplique los modelos basados sólo en captura a datos de jibia, _Dosidicus gigas_, que corresponden a registros totales en el Pacífico Suroriental, Area 87 (Payá, 2018). Discuta brevemente los resultados encontrados y comente sobre el estatus del calamar.
+
+
+## Referencias
+
+Free CM (2018) datalimited2: More stock assessment methods for data-limited fisheries. R package version 0.1.0. https://github.com/cfree14/datalimited2
+
+Froese, R., Demirel, N., Coro, G., Kleisner, K.M., Winker, H. 2017. Estimating fisheries reference points from catch and resilience. Fish and Fisheries 18(3): 506-526. http://onlinelibrary.wiley.com/doi/10.1111/faf.12190/abstract
+
+Payá, I. 2018. Estatus y posibilidades de explotación biológicamente sustentables de los principales recursos pesqueros nacionales al año 2018. Jibia. Informe 3 Consolidado  Instituto de Fomento Pesquero.  110 pp. +  4 anexos.
+
+Zhou, S., Punt, A.E., Smith, A.D.M., Ye, Y., Haddon, M., Dichmont, C.M., Smith, D.C. 2017a. An optimised catch-only assessment method for data poor fisheries. ICES Journal of Marine Science 75, 964–976. https://doi.org/10.1093/icesjms/fsx226
+
+Zhou, S., Punt, A.E., Yimin, Y., Ellis, N., Dichmont, C.M., Haddon, M., Smith, D.C., Smith, A.D.M. 2017b. Estimating stock depletion level from patterns of catch history. Fish and Fisheries 18(4), 742–751. https://doi.org/10.1111/faf.12201
