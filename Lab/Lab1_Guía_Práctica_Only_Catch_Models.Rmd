@@ -91,11 +91,11 @@ plot(captura_reineta,ty="b",pch=19,ylim=c(0,max(reineta$ct)*1.2),las=1,ylab="Cap
 
 #### Modelos
 
-__OCm1__: CMSY2
+__m1__: CMSY2
 
-__OCm2__: OCOM
+__m2__: OCOM
 
-__OCm3__: zBRT
+__m3__: zBRT
 
 #### Estimación
 
