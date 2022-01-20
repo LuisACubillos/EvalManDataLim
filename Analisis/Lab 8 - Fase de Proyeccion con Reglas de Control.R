@@ -1,11 +1,12 @@
 ### FASE DE PROYECCION DETERMINISTA ####
-
-r <- OCm1$ref_pts[1,2]
-k <- OCm1$ref_pts[2,2]
-bmsy <- OCm1$ref_pts[5,2]
-fmsy <- OCm1$ref_pts[4,2]
-Bend <- OCm1$ref_ts$b[62]
-Yend <- OCm1$ref_ts$catch[62]
+#Resumen parámetros
+m1$ref_pts
+r <- m1$ref_pts[1,2]
+k <- m1$ref_pts[2,2]
+bmsy <- m1$ref_pts[5,2]
+fmsy <- m1$ref_pts[4,2]
+Bend <- m1$ref_ts$b[27]
+Yend <- m1$ref_ts$catch[27]
 
 nhcr = 4 #numero de reglas de control
 nproy = 40 #numero de años proyectados
@@ -42,7 +43,7 @@ for(j in 1:nhcr){
             Ft[i,4] = 0
           }
         }
-        else{Ft[i,4] = Fmsy}
+        else{Ft[i,4] = fmsy}
       }
       C[i,j] = Ft[i,j]*B[i,j]
     }else{
@@ -72,21 +73,21 @@ for(j in 1:nhcr){
             Ft[i,4] = 0
           }
         }
-        else{Ft[i,4] = Fmsy}
+        else{Ft[i,4] = fmsy}
       }
       C[i,j] = Ft[i,j]*B[i,j]
     }
   }
 }
 
-B1 <- c(OCm1$ref_ts$b,B[1:nproy,1])
-B2 <- c(OCm1$ref_ts$b,B[1:nproy,2])
-B3 <- c(OCm1$ref_ts$b,B[1:nproy,3])
-B4 <- c(OCm1$ref_ts$b,B[1:nproy,4])
-Year <- c(OCm1$ref_ts$year,yrp)
+B1 <- c(m1$ref_ts$b,B[1:nproy,1])
+B2 <- c(m1$ref_ts$b,B[1:nproy,2])
+B3 <- c(m1$ref_ts$b,B[1:nproy,3])
+B4 <- c(m1$ref_ts$b,B[1:nproy,4])
+Year <- c(m1$ref_ts$year,yrp)
 Biom <- data.frame(Year,B1,B2,B3,B4)
 
-plot(Year,Biom$B1,ty="l",ylim=c(0,50000),ylab="Biomasa")
+plot(Year,Biom$B1,ty="l",ylim=c(0,150000),ylab="Biomasa")
 lines(Year,Biom$B2,col=3)
 lines(Year,Biom$B3,col=4)
 lines(Year,Biom$B4,col=5)
