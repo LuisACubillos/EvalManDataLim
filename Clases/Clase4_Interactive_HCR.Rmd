@@ -1,0 +1,103 @@
+---
+title: "Reglas de Control"
+author: "Luis Cubillos"
+date: ""
+output: 
+  ioslides_presentation: 
+    widescreen: yes
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## HCR basado en Mortalidad por Pesca (F) o Captura (C)
+
+```{r echo=FALSE}
+
+sidebarLayout(
+  sidebarPanel(
+    inputPanel(
+      selectInput("hcr", label = "Base:", choices = c("Captura","Mort.Pesca"), selected = "Mort.Pesca"),
+      selectInput("Tipo", label = "Rampa o Escala:",
+              choices = c("Rampa","Escala"), selected = "Rampa"),
+      sliderInput("p1", label = "p1:",min = 0, max = 1, value = 0, step = 0.05),
+      sliderInput("p2", label = "p2:",min = 0, max = 1, value = 0.75, step = 0.05)
+      #sliderInput("p2", label = "p2:",min = 0.75, max = 1, step = 0.05)
+)),
+
+mainPanel(
+  renderPlot({
+    brel <- seq(0,2.5,length=200)
+    crel <- numeric()
+    frel <- numeric()
+    np <- length(brel)
+    hcr <- input$hcr
+    tipo <- input$Tipo
+    p1 <- input$p1
+    p2 <- input$p2
+    #p2 <- input$p2
+    frel <- rep(1,np)
+
+    if(hcr=="Mort.Pesca"){
+      if(tipo=="Rampa"){
+            plot(brel,frel,ylab="F/Fobj",xlab="B/Bobj",type="n",las=1,ylim=c(0,2.5),xlim=c(0,2.5))
+    lines(c(0.5,0.5),c(0,2),lwd=0.3,lty=1)
+    polygon(c(0,0.5,0.5,0),c(2,2,0,0),col=rgb(1,0,0,alpha=0.2), border=NA)
+    lines(c(0.9,0.9,2.5),c(0,1,1),lwd=0.3,lty=2)
+    lines(c(1.25,1.25,2.5),c(0,0.9,0.9),lwd=0.3,lty=2)
+    polygon(c(0.5,0.9,0.9,0.5),c(1,1,0,0),col=rgb(0.255,0.255,0,alpha=0.1), border=NA)
+    polygon(c(0.5,2.5,2.5,0.5),c(2,2,1,1),col=rgb(0.255,0.255,0,alpha=0.1), border=NA)
+    lines(c(1,1,2.5),c(0,1,1),lwd=0.5,lty=1)
+    polygon(c(1.25,2.5,2.5,1.25),c(0.9,0.9,0,0),col=rgb(0,1,0,alpha=0.1), border=NA)
+        for(i in 1:np){
+          if(brel[i] <= 1)
+            {
+            frel[i] = (brel[i]-0.5)*((1-p2)/0.5)+p2
+            if(brel[i] <= 0.5)
+              {
+              frel[i] = brel[i]*((p2-p1)/0.5)+p1
+            }
+          }
+          else{frel[i]=1}
+          }
+    lines(brel,frel)
+  }
+}
+    if(hcr=="Captura"){
+      if(tipo=="Rampa"){
+            plot(brel,frel,ylab="C/Cobj",xlab="B/Bobj",type="n",las=1,ylim=c(0,2.5),xlim=c(0,2.5))
+    lines(c(0.5,0.5),c(0,2),lwd=0.3,lty=1)
+    polygon(c(0,0.5,0.5,0),c(2,2,0,0),col=rgb(1,0,0,alpha=0.2), border=NA)
+    lines(c(0.9,0.9,2.5),c(0,1,1),lwd=0.3,lty=2)
+    lines(c(1.25,1.25,2.5),c(0,0.9,0.9),lwd=0.3,lty=2)
+    polygon(c(0.5,0.9,0.9,0.5),c(1,1,0,0),col=rgb(0.255,0.255,0,alpha=0.1), border=NA)
+    polygon(c(0.5,2.5,2.5,0.5),c(2,2,1,1),col=rgb(0.255,0.255,0,alpha=0.1), border=NA)
+    lines(c(1,1,2.5),c(0,1,1),lwd=0.5,lty=1)
+    polygon(c(1.25,2.5,2.5,1.25),c(0.9,0.9,0,0),col=rgb(0,1,0,alpha=0.1), border=NA)
+        for(i in 1:np){
+          if(brel[i] <= 1)
+            {
+            crel[i] = (brel[i]-0.5)*((1-p2)/0.5)+p2
+            if(brel[i] <= 0.5)
+              {
+              crel[i] = brel[i]*((p2-p1)/0.5)+p1
+            }
+          }
+          else{crel[i]=1}
+          }
+    lines(brel,crel)
+  }
+}
+    
+  
+  
+  
+  
+  })
+  )
+)
+```
+
