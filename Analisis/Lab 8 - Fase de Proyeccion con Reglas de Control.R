@@ -1,5 +1,5 @@
 ##############################################################
-#  LAB 1 GUIA PRACTICA - ONLY CATCH MODELS
+#  LAB 8 GUIA PRACTICA - ONLY CATCH MODELS - Fase de Proyección
 #  Curso Evaluación y Manejo de Pesquerías Limitadas en Datos
 #  Prof. Luis Cubillos - Universidad de Concepción
 #  Enero 2022
