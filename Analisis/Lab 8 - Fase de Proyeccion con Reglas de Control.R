@@ -1,6 +1,14 @@
-### FASE DE PROYECCION DETERMINISTA ####
+##############################################################
+#  LAB 1 GUIA PRACTICA - ONLY CATCH MODELS
+#  Curso Evaluación y Manejo de Pesquerías Limitadas en Datos
+#  Prof. Luis Cubillos - Universidad de Concepción
+#  Enero 2022
+#  Modelos de Producción Dinámicos
+#  B_{t+1} = B_{t} + r B_{t} * (1-B_{t}/k) - C_{t}
+##############################################################
 
-#Estimación
+
+# Fase de evaluación de stock ---------------------------------------------
 library(datalimited2)
 reineta <- read.csv("Datos/Capturas_Brama_australis.csv")
 colnames(reineta) <- c("yr","ct")
@@ -8,6 +16,9 @@ colnames(reineta) <- c("yr","ct")
 catch = reineta$ct
 yr = reineta$yr
 m1 = cmsy2(year=yr, catch=catch, resilience="High")
+save.image("~/Cursos/EvalManDataLim/Analisis/EvalCMSY2_reineta_1994-2020.RData")
+
+# Fase proyección determinista con Reglas de Control de Captura -----------
 #Resumen parámetros
 m1$ref_pts
 r <- m1$ref_pts[1,2]
