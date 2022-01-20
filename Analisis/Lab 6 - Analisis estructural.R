@@ -1,17 +1,15 @@
-
-
-
-
+##############################################################
+#  LAB 6 GUIA PRACTICA - Análisis estructural de capturas
+#  Curso Evaluación y Manejo de Pesquerías Limitadas en Datos
+#  Prof. Luis Cubillos - Universidad de Concepción
+#  Enero 2022
+##############################################################
 
 # packages ----------------------------------------------------------------
 
 library(strucchange)
 library(stepR)
 library(tseries)
-
-
-
-
 
 # Datos de captura --------------------------------------------------------
 
