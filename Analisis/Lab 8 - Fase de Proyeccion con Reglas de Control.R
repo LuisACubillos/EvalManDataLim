@@ -1,4 +1,13 @@
 ### FASE DE PROYECCION DETERMINISTA ####
+
+#Estimación
+library(datalimited2)
+reineta <- read.csv("Datos/Capturas_Brama_australis.csv")
+colnames(reineta) <- c("yr","ct")
+# Modelo 1: CMSY2 - Froese et al. (2017) ----------------------------------
+catch = reineta$ct
+yr = reineta$yr
+m1 = cmsy2(year=yr, catch=catch, resilience="High")
 #Resumen parámetros
 m1$ref_pts
 r <- m1$ref_pts[1,2]
@@ -18,7 +27,7 @@ for(j in 1:nhcr){
   for(i in 1:(nproy+1)){
     if(i == 1){
       #Proyeccion año 1
-      B[i,j] = Bend + r*Bend*(1 - Bend/k) - Yend
+      (B[i,j] = Bend + r*Bend*(1 - Bend/k) - Yend)*exp(rnorm(1,mean=0,sd=0.1))
       Brel = Bend/bmsy
       #APLICACION DE REGLAS
       if(j==1){
@@ -48,7 +57,7 @@ for(j in 1:nhcr){
       C[i,j] = Ft[i,j]*B[i,j]
     }else{
       # a partir del segundo año
-      B[i,j] = max(1,B[i-1,j] + r*B[i-1,j]*(1 - B[i-1,j]/k) - C[i-1,j])
+      (B[i,j] = max(1,B[i-1,j] + r*B[i-1,j]*(1 - B[i-1,j]/k) - C[i-1,j]))*exp(rnorm(1,mean=0,sd=0.6))
       Brel = B[i-1,j]/bmsy
       #APLICACION DE REGLAS
       if(j==1){
