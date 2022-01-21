@@ -81,7 +81,7 @@ for(l in 1:nsim){
     B_Bmsy[l,1,j] <- B[l,1,j]/bmsy
     for(i in 2:nyr){
       C[l,i,j] = m1$ref_ts$catch[i]
-      (B[l,i,j] = B[l,i-1,j] + r*B[l,i-1,j]*(1 - B[l,i-1,j]/k) - C[l,i-1,j])*exp(rnorm(1,0,sd.proc))
+      (B[l,i,j] = max(1,B[l,i-1,j] + r*B[l,i-1,j]*(1 - B[l,i-1,j]/k) - C[l,i-1,j]))*exp(rnorm(1,0,sd.proc))
       Ft[l,i,j] = C[l,i,j]/B[l,i,j]
       B_Bmsy[l,i,j] = B[l,i,j]/bmsy
     }
@@ -90,9 +90,9 @@ for(l in 1:nsim){
     for(i in (nyr+1):(nproy+1)){
       if(i == (nyr+1)){
         #Proyeccion año 1
-        (B[l,i,j] = B[l,i-1,j] + r*B[l,i-1,j]*(1 - B[l,i-1,j]/k) - C[l,i-1,j])*exp(rnorm(1,0,sd.proc))
+        (B[l,i,j] = max(1,B[l,i-1,j] + r*B[l,i-1,j]*(1 - B[l,i-1,j]/k) - C[l,i-1,j]))*exp(rnorm(1,0,sd.proc))
         Brel = B[l,i-1,j]/bmsy
-        B_Bmsy[l,i,j]=Brel
+        B_Bmsy[l,i,j]=B[l,i,j]/bmsy
         #APLICACION DE REGLAS
         if(j==1){
           Ft[l,i,j]=0
@@ -139,7 +139,7 @@ for(l in 1:nsim){
         # a partir del segundo año
         (B[l,i,j] = max(1,B[l,i-1,j] + r*B[l,i-1,j]*(1 - B[l,i-1,j]/k) - C[l,i-1,j]))*exp(rnorm(1,0,sd.proc))
         Brel = B[l,i-1,j]/bmsy
-        B_Bmsy[l,i,j]=Brel
+        B_Bmsy[l,i,j]=B[l,i,j]/bmsy
         #APLICACION DE REGLAS
         if(j==1){
           Ft[l,i,j]=0
@@ -201,7 +201,8 @@ for(iter in 1:nhcr){
 }
 
 mod <- rep(1:nhcr,each=nyear)
-iyrs <- rep(c(1994:(1994+nyear-1)),nhcr)
+syr <-m1$ref_ts$year[1]
+iyrs <- rep(c(syr:(syr+nyear-1)),nhcr)
 colnames(db) <- c("Li","L1","Mediana","L2","Ls")
 db_mod <- cbind(as.data.frame(db),Year=iyrs,HCR=HCR[mod])
 df <- db_mod
@@ -230,7 +231,8 @@ for(iter in 1:nhcr){
 }
 
 mod <- rep(1:nhcr,each=nyear)
-iyrs <- rep(c(1994:(1994+nyear-1)),nhcr)
+syr <-m1$ref_ts$year[1]
+iyrs <- rep(c(syr:(syr+nyear-1)),nhcr)
 colnames(db) <- c("Li","L1","Mediana","L2","Ls")
 db_mod <- cbind(as.data.frame(db),Year=iyrs,HCR=HCR[mod])
 df <- db_mod
@@ -258,7 +260,8 @@ for(iter in 1:nhcr){
 }
 
 mod <- rep(1:nhcr,each=nyear)
-iyrs <- rep(c(1994:(1994+nyear-1)),nhcr)
+syr <-m1$ref_ts$year[1]
+iyrs <- rep(c(syr:(syr+nyear-1)),nhcr)
 colnames(db) <- c("Li","L1","Mediana","L2","Ls")
 db_mod <- cbind(as.data.frame(db),Year=iyrs,HCR=HCR[mod])
 df <- db_mod
@@ -286,7 +289,8 @@ for(iter in 1:nhcr){
 }
 
 mod <- rep(1:nhcr,each=nyear)
-iyrs <- rep(c(1994:(1994+nyear-1)),nhcr)
+syr <-m1$ref_ts$year[1]
+iyrs <- rep(c(syr:(syr+nyear-1)),nhcr)
 colnames(db) <- c("Li","L1","Mediana","L2","Ls")
 db_mod <- cbind(as.data.frame(db),Year=iyrs,HCR=HCR[mod])
 df <- db_mod
